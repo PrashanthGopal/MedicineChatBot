@@ -1,66 +1,39 @@
 from django.shortcuts import render, redirect
-from .models import Medicines
-from .forms import MedicineForm
+from .models import Medicines, Stores
+from .forms import MedicineForm, StoreForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from dialogflow_lite.dialogflow import Dialogflow
+from django.db import connection
 
 import json
 
-medicines = [{'name':'Medomol', 'indication':'Fever','dosage':'Adult: 500 - 1000 mg in 3 times daily Maximum dose: 4 g / day','drug_form':'Paracetamol','side_effects':
- 'Allergic skin reaction,fatigue','price':'Rs.19.5','manufacture':'Medo Pharma','alternative_medicines':[{'name':'Thermol', 'indication':'Fever,Headache','dosage':'Adult:  650mg in 3 times daily Maximum dose: 4 g / day','drug_form':'Paracetamol','side_effects':'Allergic reaction','price':'Rs.9.95','manufacture':'CDC'},
-{'name':'Febrinil', 'indication':'Fever,Headache','dosage':'650 mg in 2 times daily','drug_form':'Paracetamol','side_effects':'Allergic reaction','price':'Rs.16.98','manufacture':'Maneesh pharmaceuticals Ltd.'}]},
+medicinesArr = [
+{'name':'Thermol', 
+'indication':'Fever,Headache','dosage':'Adult:  650mg in 3 times daily Maximum dose: 4 g / day',
+'drug_form':'Paracetamol','side_effects':'Allergic reaction','price':'Rs.9.95','manufacture':'CDC','alternative_medicines':''},
 
-{'name':'Gluformin_G1', 'indication':'TypeII Diabetes Mellitus','dosage':'Adults: Initial dose:250mg twice or thrice daily with meals.','drug_form':'metformin','side_effects':'Vomittin,Headache,Diarrhea','price':'Rs.22.30','manufacture':'Abbott Healthcare Pvt LTD','alternative_medicines':[{'name':'Zoform,', 'indication':'TypeII Diabetes Mellitus','dosage':'500mg Is to be taken after meals',
-'drug_form':'Metformin','side_effects':'Vomiting','price':'Rs.11.68','manufacture':'FDC Ltd.'},
+{'name':'Febrinil', 'indication':'Fever,Headache','dosage':'650 mg in 2 times daily','drug_form':'Paracetamol',
+'side_effects':'Allergic reaction',
+'price':'Rs.16.98','manufacture':'Maneesh pharmaceuticals Ltd.','alternative_medicines':''},
+
+{'name':'Medomol', 'indication':'Fever','dosage':'Adult: 500 - 1000 mg in 3 times daily Maximum dose: 4 g / day','drug_form':'Paracetamol','side_effects':
+ 'Allergic skin reaction,fatigue','price':'Rs.19.5','manufacture':'Medo Pharma','alternative_medicines':{'Thermol','Febrinil'}
+},
+
+ {'name':'Zoform', 'indication':'TypeII Diabetes Mellitus','dosage':'500mg Is to be taken after meals',
+'drug_form':'Metformin','side_effects':'Vomiting','price':'Rs.11.68','manufacture':'FDC Ltd.','alternative_medicines':''},
+
 {'name':'Glureg', 'indication':'TypeII Diabetes Mellitus','dosage':'500 mg:Is to be taken after meals',
-'drug_form':'Metforminl','side_effects':'Nausea,Vomiting','price':'Rs.13.63','manufacture':'Medo pharma'}]},
-
-{'name':'Pan_40', 'indication':'Acidity,Heart burn','dosage':'10-15 minutes before taking food.',
-'drug_form':'Pantoprazole','side_effects':'Altered sense of taste,skin rash','price':'Rs.138','manufacture':'Aeran India Pvt. Ltd.',
- 'alternative_medicines':[{'name':'Topp', 'indication':'Acidity,Heart burn','dosage':'40mg: with or without food',
- 'drug_form':'Pantoprazole','side_effects':'Headache,Nausea','price':'Rs.20','manufacture':'Systopic Laboratories  Pvt Ltd.'},
-{'name':'Zipant', 'indication':'Acidity,Heart burn','dosage':'40mg:20 minutes before taking food','drug_form':'Pantoprazole',
-'side_effects':'Fatigue,diarrhoeae','price':'Rs.36.15','manufacture':'FDC Pvt Ltd.'}]},
-
-{'name':'Teleact', 'indication':'High Blood Pressure','dosage':'40mg once dailyMaintenance dose: 20to 80mg once daily ',
-'drug_form':'Telmisartan','side_effects':'Back pain,Muscle pain','price':'Rs.66.97','manufacture':'Ranbaxy Laboratories Ltd.',
- 'alternative_medicines':[{'name':'Ozotel', 'indication':'High Blood Pressure,Hypertension','dosage':'40mg:with or without food',
- 'drug_form':'Telmisartan','side_effects':'Dizziness,back pain','price':'Rs.30','manufacture':'Ozone pharmaceuticals Ltd.'},
-{'name':'Zimtel', 'indication':'Abdominal pain,Fever','dosage':'20mg:with or without food','drug_form':'Telmisartan',
-'side_effects':'Sinus inflammation,back pain','price':'Rs.12','manufacture':'Zim Laboratories Ltd.'}]},
-
-{'name':'Nico_Droxil', 'indication':'Bacterial Infection','dosage':'the recommended daily dosage for children is 30 mg/kg/day in a single dose or in equally divided doses every 12 hours.',
-'drug_form':'Cefadroxil1','side_effects':'Stomach pain,indigestion','price':'Rs.15','manufacture':'Abbott Healthcare Pvt. Ltd.',
- 'alternative_medicines':[{'name':'Droxyl', 'indication':'Bacterial Infection','dosage':'500mg:with or without food',
- 'drug_form':'Cefadroxil','side_effects':'Nausea,allergic reaction','price':'Rs.40.99','manufacture':'Torrent pharmaceuticals Ltd.'},
- {'name':'Odoxil', 'indication':'Bacterial Infection','dosage':'500mg:with  food',
- 'drug_form':'Cefadroxil','side_effects':'Nausea,allergic reaction','price':'Rs.40.67','manufacture':'Lupin Ltd.'}]},
+'drug_form':'Metforminl','side_effects':'Nausea,Vomiting','price':'Rs.13.63','manufacture':'Medo pharma','alternative_medicines':''},
  
- {'name':'Zapiz', 'indication':'Treat panic attacks and sleep disorders','dosage':'Adult: Anticonvulsant:Initial dose: 0.5 mg three times a day',
- 'drug_form':'Clonazepam','side_effects':'Depresssion,allergy','price':'Rs.31.58','manufacture':'Intas Pharmaceuticals Ltd.',
- 'alternative_medicines':[{'name':'Cozil', 'indication':'Treat panic attacks and sleep disorders','dosage':'5mg:with or without food',
- 'drug_form':'Clonazepam','side_effects':'Sleepiness,fatigue,headache','price':'Rs.12','manufacture':'Medico Lab '},
-{'name':'Clone', 'indication':'Treat panic attacks and sleep disorders','dosage':'2mg:with or without food','drug_form':'Clonazepam',
-'side_effects':'Sleepiness,fatigue,headache','price':'Rs.36.07','manufacture':'VGR  bio Lab '}]},
-
-{'name':'Cyclopam', 'indication':'Abdominal pain,','dosage':'Adult: Oral: 80 mg / day in 4 divided doses 30 - 60 minutes before meals',
-'drug_form':'Dicyclomine','side_effects':'Nausea,weakness,blurred vision','price':'Rs.43','manufacture':'Indoco Remedies Ltd.',
- 'alternative_medicines':[{'name':'Colimex', 'indication':'Abdominal pain','dosage':'20/500mg:Compulsolury after meals',
- 'drug_form':'Dicyclomile','side_effects':'Blurred vision,weakness','price':'Rs.25','manufacture':'Wallace pharmaceuticals Ltd.'},
-{'name':'Cyclo_P', 'indication':'Abdominal pain','dosage':'20mg:after  meals','drug_form':'Cyclo P 20/500mg',
-'side_effects':'Nausea,nervousness','price':'Rs.Rs.3.75','manufacture':'Laborate pharmaceuticals India Ltd'}]},
-
-{'name':'Amaryl', 'indication':'TypeII diabetes','dosage':'Initial: 1-2 mg  after breakfast or with first meal; may increase dose by 1-2 mg every 1-2 weeks; not to exceed 8 mg/day',
-'drug_form':'Glimepiride','side_effects':'Anemia,Jaundice','price':'Rs.109','manufacture':'Sanofi India Ltd.',
- 'alternative_medicines':[{'name':'K-Glim', 'indication':'TypeII diabetes','dosage':'2mg:with food',
- 'drug_form':'Glimepiride','side_effects':'Low blood Sugar Levels,dizziness','price':'Rs.28.35','manufacture':'Blue Cross Laborotaries Ltd.'},
-{'name':'Febrinil', 'indication':'TypeII diabetes','dosage':'1mg:with food','drug_form':'Glimepiride',
-'side_effects':'Low blood Sugar Levels,dizziness','price':'Rs.14.44','manufacture':'FDC Ltd.'}]}
-]
+{'name':'Gluformin_G1', 'indication':'TypeII Diabetes Mellitus','dosage':
+'Adults: Initial dose:250mg twice or thrice daily with meals.','drug_form':'metformin',
+'side_effects':'Vomittin,Headache,Diarrhea','price':'Rs.22.30','manufacture':'Abbott Healthcare Pvt LTD',
+'alternative_medicines':{'Zoform','Glureg'}}]
 
 def convert(data):
     if isinstance(data, bytes):
@@ -88,9 +61,29 @@ def chat_view(request):
         }
         return JsonResponse(data, status=405)
     elif request.method == "POST":
+        
         data = {
+            
             'text': responses[0],
         }
+        print(str(input_text))
+        out_str = ''
+        MedicinesModel = Medicines.objects.all()
+        for medicine in MedicinesModel:
+            if str(input_text).find(medicine.name) != -1:
+                print(medicine.name)
+                out_str += 'Alternative Medicines --> ' + medicine.alternative_medicines +':: Medicine Indication --> '+medicine.indication
+                AllStores = Stores.objects.all()
+                out_str += ':: Medicine are available at store --> '
+                for store in AllStores:
+                    print('store available'+store.medicines_available)
+                    if str(input_text) in store.medicines_available:
+                        out_str += 'Store Name: '+store.name + ' Address: '+store.address
+                        print('store available')
+                data = {
+                'text': out_str,
+                }
+        
         return JsonResponse(data, status=200)
     elif request.method == "PATCH":
         data = {
@@ -112,32 +105,99 @@ def chat_view(request):
 
 @login_required
 def index(request):
-    
-    return render(request, 'index.html', {'medicines': medicines})
+    MedicinesCount = Medicines.objects.all().count()
+    print(MedicinesCount)
+    if MedicinesCount == 0:
+        insertAllRecords()
+
+    MedicinesModel = Medicines.objects.all()
+    return render(request, 'index.html', {'medicines': MedicinesModel})
+
+@login_required
+def storeList(request):
+    StoresList = Stores.objects.all()
+    return render(request, 'index_store.html', {'stores': StoresList})
+
+def insertAllRecords():
+    for medicine in medicinesArr:
+        strigConcatVal = ','.join(medicine['alternative_medicines'])
+        print(medicine['alternative_medicines'])
+        Medicines.objects.create(name = medicine['name'],
+        indication = medicine['indication'],
+        dosage = medicine['dosage'],
+        drug_form = medicine['drug_form'],
+        side_effects = medicine['side_effects'],
+        price = medicine['price'],
+        manufacture = medicine['manufacture'],
+        alternative_medicines = strigConcatVal)
+
 
 @login_required
 def show(request, medicine_name):
-    medicineAlternative = dict()
-    alternativeTemp = dict()
-    for medicine in medicines:
-        if medicine['name'] == medicine_name:
-            medicineAlternative = medicine['alternative_medicines']
-
-
-    return render(request, 'show.html', {'medicineAlternative': medicineAlternative})
+    MedicinesModel = Medicines.objects.filter(name=medicine_name)
+    alternativeTemp=[i.alternative_medicines for i in  MedicinesModel]
+   
+    for altMedArr in alternativeTemp:
+        medicineAlternative = altMedArr.split(",")
+  
+    fullMedicinesModel = Medicines.objects.all()
+    
+    return render(request, 'show.html', {'medicineAlternative': medicineAlternative, 'medicines': fullMedicinesModel})
 
 @login_required
 def new(request):
     if request.POST:
-        form = MedicineForm(request.POST)
+        #form = MedicineForm(request.POST)
+        #print(request.POST.getlist('alternative_medicines'))
+        requestData = request.POST.getlist('alternative_medicines')
+        medicineName = request.POST.get('name')
+        nameAltered = medicineName.replace(" ","_")
+        form = request.POST.copy()
+        #print(','.join(requestData))
+        if requestData:
+            print("Dict is not Empty")
+            strigConcatVal = ','.join(requestData)
+            form["alternative_medicines"] = strigConcatVal
+
+        form["name"] = nameAltered
+        form = MedicineForm(form)
         if form.is_valid():
             if form.save():
-                return redirect('/', messages.success(request, 'Order was successfully created.', 'alert-success'))
+                return redirect('/order/new/', messages.success(request, 'Medicine successfully created.', 'alert-success'))
             else:
-                return redirect('/', messages.error(request, 'Data is not saved', 'alert-danger'))
+                return redirect('/order/new/', messages.error(request, 'Data is not saved', 'alert-danger'))
         else:
-            return redirect('/', messages.error(request, 'Form is not valid', 'alert-danger'))
+            return redirect('/order/new/', messages.error(request, 'Form is not valid', 'alert-danger'))
     else:
         form = MedicineForm()
-        return render(request, 'new.html', {'form':form})
+        MedicinesModel = Medicines.objects.all()
+        return render(request, 'new.html', {'form':form, 'medicines': MedicinesModel})
 
+
+@login_required
+def newStore(request):
+    if request.POST:
+        #form = MedicineForm(request.POST)
+        #print(request.POST.getlist('alternative_medicines'))
+        requestData = request.POST.getlist('medicines_available')
+        #print(','.join(requestData))
+        strigConcatVal = ','.join(requestData)
+        print(strigConcatVal)
+        form = request.POST.copy()
+        form["medicines_available"] = strigConcatVal
+        form = StoreForm(form)
+        if form.is_valid():
+            if form.save():
+                return redirect('/order/newStore/', messages.success(request, 'Store successfully created.', 'alert-success'))
+            else:
+                return redirect('/order/newStore/', messages.error(request, 'Data is not saved', 'alert-danger'))
+        else:
+            return redirect('/order/newStore/', messages.error(request, 'Form is not valid', 'alert-danger'))
+    else:
+        form = StoreForm()
+        MedicinesModel = Medicines.objects.all()
+        return render(request, 'new_store.html', {'form':form, 'medicines': MedicinesModel})
+
+def poi_list(request):
+    store = Stores.objects.all()
+    return render(request, 'position_list.html', {'Stores': store})

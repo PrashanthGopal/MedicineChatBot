@@ -26,6 +26,12 @@
 		<link type="text/css" rel="stylesheet" href="{% static 'css/chatStyle.css' %}" />
 		<!-- END STYLESHEETS -->
 
+		<style>
+            #map-canvas {
+                height: 600px;
+            }
+        </style>
+
 		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
 		<script type="text/javascript" src="../../assets/js/libs/utils/html5shiv.js?1403934957"></script>
@@ -145,7 +151,22 @@
 						</li><!--end /menu-li -->
 						<!-- END ORDER -->
 
-						<!-- BEGIN PROFILE -->
+						<!-- BEGIN STORE -->
+						<li class="gui-folder">
+								<a>
+									<div class="gui-icon"><i class="fa fa-cart-plus"></i></div>
+									<span class="title">Medical Store</span>
+								</a>
+								<!--start submenu -->
+								<ul>
+									<li><a href="{% url 'storeList'%}" ><span class="title">All Stores</span></a></li>
+									<li><a href="{% url 'newStore'%}" ><span class="title">Add Stores</span></a></li>
+									<li><a href="{% url 'poiList'%}" ><span class="title">Store Positions</span></a></li>
+								</ul><!--end /submenu -->
+							</li><!--end /menu-li -->
+							<!-- END ORDER -->
+
+						<!-- BEGIN STORE -->
 						<li class="gui-folder">
 							<a>
 								<div class="gui-icon"><i class="fa fa-user"></i></div>
@@ -163,6 +184,9 @@
 					<!-- END MAIN MENU -->
 
 					<div class="menubar-foot-panel">
+						<p> Current Location</p>
+						<p id='startLat' ></p>
+						
 						<small class="no-linebreak hidden-folded">
 							<span class="opacity-75">Copyright &copy; {% now "Y" %}</span> <strong>Gogte Institute</strong>
 						</small>
@@ -194,7 +218,7 @@
 		<script src="{% static 'js/core/AppVendor.js' %}"></script>
 		<script src="{% static 'js/core/Demo.js' %}"></script>
 		<script src="{% static 'js/core/chat.js' %}"></script>
-		<script src="{% static 'js/core/jquery.js' %}"></script>
+		<!--<script src="{% static 'js/core/jquery.js' %}"></script> -->
 		<script src="{% static 'js/core/js.cookie.js' %}"></script>
         <script src="{% static 'js/core/DemoTableDynamic.js' %}"></script>
         <script src="{% static 'js/libs/select2/select2.min.js' %}"></script>
@@ -207,7 +231,22 @@
 
             $(document).ready(function() {
               $("#product_id").select2();
+			  $('.select_field_class').select2( { placeholder: "Select here", maximumSelectionSize: 100  } );
             });
+
+			window.onload = function() {
+			var startPos;
+			var geoSuccess = function(position) {
+				startPos = position;
+				document.getElementById('startLat').innerHTML =  "Latitude: " + startPos.coords.latitude + 
+				"<br>Longitude: " + startPos.coords.longitude;
+
+				//document.getElementById('startLat').innerHTML = startPos.coords.latitude;
+				//document.getElementById('startLon').innerHTML = startPos.coords.longitude;
+			};
+			navigator.geolocation.getCurrentPosition(geoSuccess);
+			};
+			
         </script>
 		
 		<script>
@@ -329,7 +368,9 @@ you.avatar = "https://a11.t26.net/taringa/avatares/9/1/2/F/7/8/Demon_King1/48x48
           submitInput();
         }
       });
-    </script>
+	</script>
+	
+	
 
 	</body>
 </html>

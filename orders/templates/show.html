@@ -30,11 +30,13 @@
                                                         <th>Price</th>
                                                         <th>Manufacture</th>
                                                         
-                                                        
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for medicine in medicineAlternative %}
+                                                    {% for altMed in medicineAlternative %}
+                                                    {% for medicine in medicines %}
+                                                    
+                                                    {% if medicine.name == altMed %}
                                                         <tr >
                                                             <td>{{ medicine.name }}</td>
                                                             <td>{{ medicine.indication }}</td>
@@ -46,6 +48,8 @@
                                                                                                                
                                                             
                                                         </tr>
+                                                    {% endif %}
+                                                    {% endfor %}
                                                     {% endfor %}
                                                 </tbody>
                                             </table>

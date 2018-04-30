@@ -70,10 +70,20 @@
 													<label class="radio-inline radio-styled col-sm-2">
 														<b>Alternative Medicines :</b>
 													</label>
-													<div class="col-md-10">
+													<!-- <div class="col-md-10">
 														<div class="row">
 															{{ form.alternative_medicines | add_class:'form-control'}}
-                                                        </div>
+														</div> -->
+														<div class="col-md-10">
+															<div class="row">
+																<select class="select_field_class" multiple="multiple" name="alternative_medicines" id="option">
+																	<option value="">Enter the Medicine</option>
+																	{% for Medicine in medicines %}
+																	   <option value="{{ Medicine.name }}">{{ Medicine.name }}</option>
+																	{% endfor %}
+															  </select>
+															</div>
+														</div>
 													</div>
 												</div>
 												<div class="col-md-12">

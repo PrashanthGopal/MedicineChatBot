@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'orders',
 	'corsheaders',
+    'geoposition',
 ]
+
+GEOPOSITION_GOOGLE_MAPS_API_KEY = 'AIzaSyBjS1jrxHtXYcwllsLWnn1yRe2cNnYzlL8'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

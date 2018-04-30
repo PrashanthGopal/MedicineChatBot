@@ -44,8 +44,9 @@
                                                             <td>{{ medicine.price }}</td>
                                                             <td>{{ medicine.manufacture }}</td>
                                                             <td>
+                                                                {% if medicine.alternative_medicines %}
                                                                 <a href="{% url 'alternativeMedicine' medicine.name %}" class="btn ink-reaction btn-floating-action btn-warning"><i class="fa fa-plus"></i> </a>
-
+                                                                {% endif %}
                                                             </td>
                                                            
                                                             
