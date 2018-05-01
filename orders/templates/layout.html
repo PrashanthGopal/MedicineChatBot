@@ -145,8 +145,10 @@
 							</a>
 							<!--start submenu -->
 							<ul>
-                                <li><a href="{% url 'home'%}" ><span class="title">All Medicines</span></a></li>
+								<li><a href="{% url 'home'%}" ><span class="title">All Medicines</span></a></li>
+								{% if user.is_authenticated and user.is_staff %}
 								<li><a href="{% url 'new'%}" ><span class="title">Add Medicines</span></a></li>
+								{% endif %}
 							</ul><!--end /submenu -->
 						</li><!--end /menu-li -->
 						<!-- END ORDER -->
@@ -160,7 +162,9 @@
 								<!--start submenu -->
 								<ul>
 									<li><a href="{% url 'storeList'%}" ><span class="title">All Stores</span></a></li>
+									{% if user.is_authenticated and user.is_staff %}
 									<li><a href="{% url 'newStore'%}" ><span class="title">Add Stores</span></a></li>
+									{% endif %}
 									<li><a href="{% url 'poiList'%}" ><span class="title">Store Positions</span></a></li>
 								</ul><!--end /submenu -->
 							</li><!--end /menu-li -->
