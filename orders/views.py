@@ -72,12 +72,15 @@ def chat_view(request):
         for medicine in MedicinesModel:
             if str(input_text).find(medicine.name) != -1:
                 print(medicine.name)
-                out_str += 'Alternative Medicines --> ' + medicine.alternative_medicines +':: Medicine Indication --> '+medicine.indication
+                out_str += 'Medicine Information --> ' + medicine.name +' :: '
+                if medicine.alternative_medicines is not None:
+                    out_str += 'Alternative Medicines --> ' + medicine.alternative_medicines +' :: '
+                out_str += 'Medicine Indication --> '+medicine.indication
                 AllStores = Stores.objects.all()
                 out_str += ':: Medicine are available at store --> '
                 for store in AllStores:
-                    print('store available'+store.medicines_available)
-                    if str(input_text) in store.medicines_available:
+                    #print('store available'+store.medicines_available)
+                    if str(medicine.name) in store.medicines_available:
                         out_str += 'Store Name: '+store.name + ' Address: '+store.address
                         print('store available')
                 data = {

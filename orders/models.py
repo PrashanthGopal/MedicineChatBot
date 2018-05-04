@@ -11,7 +11,7 @@ class Medicines (models.Model):
     side_effects = models.CharField(max_length=200)
     price = models.CharField(max_length=50)
     manufacture = models.CharField(max_length=200)
-    alternative_medicines = models.CharField(max_length=500)
+    alternative_medicines = models.CharField(max_length=500, blank=True, null=True)
 
 
 class Stores (models.Model):

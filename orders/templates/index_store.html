@@ -1,0 +1,89 @@
+{% extends 'layout.html' %}
+
+{% block title %} All Orders {% endblock %}
+
+{% block body %}
+                <section>
+                    <div class="section-body">
+                        <!-- BEGIN DATATABLE 2 -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-head style-primary">
+                                        <header>All Store Data</header>
+                                        <div class="tools">
+                                            <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+                                            <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="datatable2" class="table table-striped table-condensed order-column hover" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Store Name</th>
+                                                        <th>Owner Name</th>
+                                                        <th>Address</th>
+                                                        <th>Landmark</th>
+                                                        <th>Medicines Available</th>
+                                                        <th>Latitude</th>
+                                                        <th>Longitude</th>
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                 {% for store in stores %}
+                                                        <tr >
+                                                            <td>{{ store.name }}</td>
+                                                            <td>{{ store.owner_name }}</td>
+                                                            <td>{{ store.address }}</td>
+                                                            <td>{{ store.Landmark }}</td>
+                                                            <td>{{ store.medicines_available }}</td>
+                                                            <td>{{ store.position.latitude }}</td>
+                                                            <td>{{ store.position.longitude }}</td>
+                                                           
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div><!--end .table-responsive -->
+                                    </div>   
+                                </div>       
+                            </div><!--end .col -->
+                        </div><!--end .row -->
+                        <!-- END DATATABLE 2 -->
+
+                    </div><!--end .section-body -->
+                
+
+        <div class="row chat-window" id="chat_window_1" style="margin-left:10px;">
+        <div class="col-xs-3 col-xs-offset-9">
+        	<div class="panel panel-default pull-right">
+                <div class="panel-heading top-bar">
+                    <div class="col-md-8 col-xs-8">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-comment"></span> ChatBot- Help?</h3>
+                    </div>
+                    <div class="col-md-4 col-xs-4" style="text-align: right;">
+                        <a href="#"><span id="minim_chat_window" class="glyphicon glyphicon-minus icon_minim"></span></a>
+                        <a href="#"><span class="glyphicon glyphicon-remove icon_close" data-id="chat_window_1"></span></a>
+                    </div>
+                </div>
+                <div class="panel-body msg_container_base" style="height:250px">
+                    <!--<ul class="list-group js-chat-log">
+					</ul> -->
+                </div>
+                <div class="panel-footer">
+				<div class="input-group">
+					<input id="btn-input" type="text" class="form-control input-sm js-text chat_input" placeholder="How can I help You?"/>
+					<span class="input-group-btn">
+					<button class="btn btn-primary js-say btn-sm">Send</button>
+					</span>
+				</div>
+    		</div>
+        </div>
+        
+    </div>
+    </section>
+	
+	
+{% endblock %}

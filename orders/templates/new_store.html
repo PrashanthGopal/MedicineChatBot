@@ -1,0 +1,134 @@
+{% extends 'layout.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %} Add Store {% endblock %}
+
+{% block body %}
+
+                <section>
+					<div class="section-body">
+						<div class="row">
+
+							<!-- BEGIN  - FORM -->
+							<div class="col-lg-12">
+								<div class="card">
+									<div class="card-head style-primary">
+										<header>Add Store</header>
+										<div class="tools">
+											<a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+											<a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+										</div>
+									</div>
+									<div class="card-body">
+
+										<form class="form" role="form" action="" method="post"> {% csrf_token %}
+												
+											<div class="row">
+												<div class="col-sm-6">
+													
+													<div class="form-group floating-label">
+														{{ form.name | add_class:'form-control' }}
+														<label for="regular2">Store Name</label>
+													</div>
+													<div class="form-group floating-label">
+														{{ form.owner_name | add_class:'form-control' }}
+														<label for="regular2">Owner Name</label>
+													</div>
+													<!--<div class="form-group floating-label">
+														{{ form.latitude | add_class:'form-control'}}
+														<label for="regular2">Lattitude</label>
+													</div>
+												-->
+												</div>
+												<div class="col-sm-6">
+													
+													
+													<div class="form-group floating-label">
+														{{ form.address | add_class:'form-control'}}
+														<label for="textarea2">Address</label>
+													</div>
+                                                    <div class="row">
+														
+															<div class="form-group floating-label">
+																{{ form.Landmark| add_class:'form-control' }}
+																<label for="textarea2">Landmark</label>
+															</div>
+														
+														
+													</div>
+												</div>
+												<div class="col-md-12">
+													<div >
+														<div class="form-group floating-label">
+															{{ form.position | add_class:'form-control'}}
+															<label for="regular2">position Latitude / Longitude</label>
+														</div>
+													</div>
+													<!--<div class="col-sm-6">
+														<div id="map-canvas"></div>
+													</div>
+												-->
+													<script src="https://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script>
+												</div>
+												<script>
+													function initialize() {
+														var map = new google.maps.Map(document.getElementById('map-canvas'));
+														var bounds = new google.maps.LatLngBounds();
+														function addMarker(lat, lng, title) {
+															var position = new google.maps.LatLng(lat, lng);
+															var marker = new google.maps.Marker({
+																position: position,
+																map: map,
+																title: title
+															});
+															bounds.extend(position);
+														}
+														
+														map.fitBounds(bounds);
+													}
+													google.maps.event.addDomListener(window, 'load', initialize);
+												</script>
+												<!--{% for store in Stores %}
+												addMarker({{ store.position.latitude }}, {{ store.position.longitude }}, "{{ store.name }}");
+												{% endfor %}
+												-->
+												<div class="col-md-12">
+													
+													<label class="radio-inline radio-styled col-sm-2">
+														<b> Medicines Available in Store :</b>
+													</label>
+													<!-- <div class="col-md-10">
+														<div class="row">
+															{{ form.alternative_medicines | add_class:'form-control'}}
+														</div> -->
+														<div class="col-md-10">
+															<div class="row">
+																<select class="select_field_class" multiple="multiple" name="medicines_available" id="option">
+																	<option value="">Enter the Medicine</option>
+																	{% for Medicine in medicines %}
+																	   <option value="{{ Medicine.name }}">{{ Medicine.name }}</option>
+																	{% endfor %}
+															  </select>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-12">
+													<hr>
+													<div class="card-actionbar-row">
+														<input type="submit" class="btn btn-flat btn-primary ink-reaction" value="SUBMIT">
+													</div>
+												</div>
+											</div>
+										</form>
+									</div><!--end .card-body -->
+								</div><!--end .card -->
+							</div><!--end .col -->
+							<!-- END FORM - TIME ON SITE -->
+
+						</div><!--end .row -->
+					</div><!--end .section-body -->
+				</section>
+
+{% endblock %}
